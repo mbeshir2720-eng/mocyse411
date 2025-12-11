@@ -17,9 +17,7 @@ const orders = [
   { id: 4, userId: 2, item: "Keyboard", region: "south", total: 60 },
 ];
 
-// Very simple "authentication" via headers:
-//   X-User-Id: <user id>
-//   (we pretend that real auth already happened)
+// Very simple "authentication"
 function fakeAuth(req, res, next) {
   const idHeader = req.header("X-User-Id");
   const id = idHeader ? parseInt(idHeader, 10) : null;
@@ -29,28 +27,36 @@ function fakeAuth(req, res, next) {
     return res.status(401).json({ error: "Unauthenticated: set X-User-Id" });
   }
 
-  // Attach authenticated user to the request
   req.user = user;
   next();
 }
 
-// Apply fakeAuth to all routes below this line
 app.use(fakeAuth);
 
-// VULNERABLE endpoint: no ownership check (IDOR)
+// FIXED IDOR ENDPOINT
 app.get("/orders/:id", (req, res) => {
   const orderId = parseInt(req.params.id, 10);
-
   const order = orders.find((o) => o.id === orderId);
+
   if (!order) {
     return res.status(404).json({ error: "Order not found" });
   }
 
-  // BUG: no check that order.userId === req.user.id
+  const user = req.user;
+
+  // Owner access
+  const isOwner = order.userId === user.id;
+
+  // Support staff can access orders only in their region
+  const isSupport =
+    user.role === "support" && user.department === order.region;
+
+  if (!isOwner && !isSupport) {
+    return res.status(403).json({ error: "Access denied" });
+  }
+
   return res.json(order);
 });
-
-
 
 // Health check
 app.get("/", (req, res) => {
