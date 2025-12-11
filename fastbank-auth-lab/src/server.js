@@ -11,6 +11,15 @@ const PORT = 3001;
 // 🔒 SECURITY FIX: Hide "X-Powered-By: Express" header
 app.disable("x-powered-by");
 
+app.use((req, res, next) => {
+  res.setHeader("X-Frame-Options", "DENY");                          // prevent clickjacking
+  res.setHeader("X-Content-Type-Options", "nosniff");                // prevent MIME sniffing
+  res.setHeader("Content-Security-Policy", "default-src 'self'");    // required CSP
+  res.setHeader("Permissions-Policy", "interest-cohort=()");         // disable FLoC
+  next();
+});
+
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -45,9 +54,12 @@ function fastHash(password) {
 function findUser(username) {
   return users.find((u) => u.username === username);
 }
-
+app.get("/", (req, res) => {
+  res.send("FastBank Auth Lab is running.");
+});
 // Home API just to show who is logged in
 app.get("/api/me", (req, res) => {
+  //res.send("Fast Aut Lab is running");
   const token = req.cookies.session;
   if (!token || !sessions[token]) {
     return res.status(401).json({ authenticated: false });
@@ -104,14 +116,6 @@ app.post("/api/logout", (req, res) => {
   }
   res.clearCookie("session");
   res.json({ success: true });
-});
-// Custom 404 handler so security headers apply to missing routes too
-app.use((req, res, next) => {
-  res.setHeader("X-Frame-Options", "DENY");
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("Content-Security-Policy", "default-src 'self'");
-  res.setHeader("Permissions-Policy", "interest-cohort=()");
-  next();
 });
 
 
