@@ -12,9 +12,15 @@ const PORT = 3001;
 app.disable("x-powered-by");
 
 app.use((req, res, next) => {
-  res.setHeader("X-Frame-Options", "DENY");                          // prevent clickjacking
-  res.setHeader("X-Content-Type-Options", "nosniff");                // prevent MIME sniffing
-  res.setHeader("Content-Security-Policy", "default-src 'self'");    // required CSP
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  
+  // FIXED: Added form-action and frame-ancestors to satisfy ZAP Rule 10055
+  res.setHeader(
+    "Content-Security-Policy", 
+    "default-src 'self'; form-action 'self'; frame-ancestors 'none'"
+  );
+  
   res.setHeader("Permissions-Policy", "interest-cohort=()");   
   next();
 });
