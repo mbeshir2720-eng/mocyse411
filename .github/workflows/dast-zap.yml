@@ -27,7 +27,7 @@ jobs:
     - name: Start vulnerable app
       working-directory: fastbank-auth-lab
       run: |
-        npm start &
+        node server.js &
         sleep 20
 
     - name: Run OWASP ZAP full scan
