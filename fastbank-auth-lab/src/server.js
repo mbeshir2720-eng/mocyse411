@@ -11,12 +11,12 @@ const PORT = 3001;
 // 🔒 SECURITY FIX: Hide "X-Powered-By: Express" header
 app.disable("x-powered-by");
 app.use ((req, res, next) => {
-  res.setHeader("X-Frame-Options", "DENY")
+  res.setHeader("X-Frame-Options", "DENY");
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Content-Security-policy", "default-src 'self'; frame-ancestors 'non'");
   res.setHeader("permissions-Policy", "interest-cohort=()");
   next();
-})
+});
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
