@@ -15,7 +15,9 @@ app.use((req, res, next) => {
   res.setHeader("X-Frame-Options", "DENY");                          // prevent clickjacking
   res.setHeader("X-Content-Type-Options", "nosniff");                // prevent MIME sniffing
   res.setHeader("Content-Security-Policy", "default-src 'self'");    // required CSP
-  res.setHeader("Permissions-Policy", "interest-cohort=()");         // disable FLoC
+  res.setHeader("Permissions-Policy", "interest-cohort=()");   
+   res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
   next();
 });
 
