@@ -27,7 +27,6 @@ jobs:
     - name: Start vulnerable app
       working-directory: idor
       run: |
-        npm install
         node server.js &
         # wait for server to boot
         sleep 20
