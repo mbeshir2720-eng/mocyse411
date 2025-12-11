@@ -5,6 +5,28 @@ const fs = require('fs');
 const { body, validationResult } = require('express-validator');
 
 const app = express();
+
+// --- Security Headers Required by ZAP ---
+app.disable("x-powered-by");
+
+// Prevent Clickjacking
+app.use((req, res, next) => {
+  res.setHeader("X-Frame-Options", "DENY");
+
+  // Prevent MIME sniffing
+  res.setHeader("X-Content-Type-Options", "nosniff");
+
+  // CSP header (ZAP requires default-src)
+  res.setHeader("Content-Security-Policy", "default-src 'self'");
+
+  // Permissions Policy (prevents FLoC warning)
+  res.setHeader("Permissions-Policy", "interest-cohort=()");
+
+  next();
+});
+
+
+
 app.use(express.urlencoded({extended: false}));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
