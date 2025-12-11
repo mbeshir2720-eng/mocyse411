@@ -106,13 +106,14 @@ app.post("/api/logout", (req, res) => {
   res.json({ success: true });
 });
 // Custom 404 handler so security headers apply to missing routes too
-app.use((req, res) => {
+app.use((req, res, next) => {
   res.setHeader("X-Frame-Options", "DENY");
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Content-Security-Policy", "default-src 'self'");
   res.setHeader("Permissions-Policy", "interest-cohort=()");
-  res.status(404).send("Not Found");
+  next();
 });
+
 
 app.listen(PORT, () => {
   console.log(`FastBank Auth Lab running at http://localhost:${PORT}`);
