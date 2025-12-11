@@ -20,12 +20,12 @@ jobs:
         node-version: '20'
 
     - name: Install lab dependencies
-      working-directory: fastbank_insecure_classwork/backend
+      working-directory: canonicalization-example
       run: |
         npm install
 
     - name: Start vulnerable app
-      working-directory: fastbank_insecure_classwork/backend
+      working-directory: canonicalization-example
       run: |
         npm start &
         # wait for server to boot
@@ -37,3 +37,4 @@ jobs:
         target: 'http://localhost:4000'
         fail_action: true      # fail if ZAP finds alerts
         allow_issue_writing: false  # don't auto-write issues
+        
