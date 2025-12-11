@@ -16,8 +16,6 @@ app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");                // prevent MIME sniffing
   res.setHeader("Content-Security-Policy", "default-src 'self'");    // required CSP
   res.setHeader("Permissions-Policy", "interest-cohort=()");   
-   res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
-  res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
   next();
 });
 
@@ -56,9 +54,6 @@ function fastHash(password) {
 function findUser(username) {
   return users.find((u) => u.username === username);
 }
-app.get("/", (req, res) => {
-  res.send("FastBank Auth Lab is running.");
-});
 // Home API just to show who is logged in
 app.get("/api/me", (req, res) => {
   //res.send("Fast Aut Lab is running");
