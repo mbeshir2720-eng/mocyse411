@@ -13,7 +13,7 @@ app.disable("x-powered-by");
 app.use ((req, res, next) => {
   res.setHeader("X-Frame-Options", "DENY")
   res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("Content-security-policy", "default-src 'self'");
+  res.setHeader("Content-Security-policy", "default-src 'self'"); //; frame-ancestors 'non'");
   res.setHeader("permissions-Policy", "interest-cohort=()");
   next();
 })
