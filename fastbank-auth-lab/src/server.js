@@ -10,6 +10,13 @@ const PORT = 3001;
 
 // 🔒 SECURITY FIX: Hide "X-Powered-By: Express" header
 app.disable("x-powered-by");
+app.use ((req, res, next) => {
+  res.setHeader("X-Frame-Opetions", "DENY")
+  res.setHeader("X-content-Type-Options", "nosniff");
+  res.setHeader("content-security-policy", "default-src 'self'");
+  res.setHeader("permissions-Plicy", "interest-cohort=()");
+  next();
+})
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
