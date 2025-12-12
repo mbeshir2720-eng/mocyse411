@@ -17,7 +17,6 @@ app.use((req, res, next) => {
     "Content-Security-Policy", 
     "default-src 'self'; form-action 'self'; frame-ancestors 'none'"
   );
-  
   res.setHeader("Permissions-Policy", "interest-cohort=()");   
   next();
 });
