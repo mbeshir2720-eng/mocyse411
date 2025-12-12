@@ -5,14 +5,24 @@ const fs = require('fs');
 const { body, validationResult } = require('express-validator');
 
 const app = express();
+app.disable("x-powered-by");
+
+app.use((req, res, next) => {
+  res.setHeader("X-Frame-Options","DENY");
+  res.setHeader("X-Content-Type-Options","nosniff");
+  res.setHeader("Content-Security-Policy", "default-src 'self'");
+  res.setHeader("Permissions-Policy","interest-cohort=()");
+  next();
+});
+
+
+app.use(express.urlencoded({extended: false}));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 const BASE_DIR = path.resolve(__dirname, 'files');
 if (!fs.existsSync(BASE_DIR)) fs.mkdirSync(BASE_DIR, { recursive: true });
-
-// helper to canonicalize and check
 function resolveSafe(baseDir, userInput) {
   try {
     userInput = decodeURIComponent(userInput);
@@ -20,7 +30,6 @@ function resolveSafe(baseDir, userInput) {
   return path.resolve(baseDir, userInput);
 }
 
-// Secure route
 app.post(
   '/read',
   body('filename')
@@ -52,8 +61,11 @@ app.post(
 // Vulnerable route (demo)
 app.post('/read-no-validate', (req, res) => {
   const filename = req.body.filename || '';
-  const joined = path.join(BASE_DIR, filename); // intentionally vulnerable
-  if (!fs.existsSync(joined)) return res.status(404).json({ error: 'File not found', path: joined });
+  const joined = path.join(BASE_DIR, filename);
+
+  if (!fs.existsSync(joined)) {
+    return res.status(404).json({ error: 'File not found', path: joined });
+  }
   const content = fs.readFileSync(joined, 'utf8');
   res.json({ path: joined, content });
 });
