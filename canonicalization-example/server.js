@@ -5,29 +5,6 @@ const fs = require('fs');
 const { body, validationResult } = require('express-validator');
 
 const app = express();
-
-// --- Security Headers Required by ZAP ---
-app.disable("x-powered-by");
-
-// Prevent Clickjacking
-app.use((req, res, next) => {
-  res.setHeader("X-Frame-Options", "DENY");
-
-  // Prevent MIME sniffing
-  res.setHeader("X-Content-Type-Options", "nosniff");
-
-  // CSP header (ZAP requires default-src)
-  res.setHeader("Content-Security-Policy", "default-src 'self'");
-
-  // Permissions Policy (prevents FLoC warning)
-  res.setHeader("Permissions-Policy", "interest-cohort=()");
-
-  next();
-});
-
-
-
-app.use(express.urlencoded({extended: false}));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -75,11 +52,8 @@ app.post(
 // Vulnerable route (demo)
 app.post('/read-no-validate', (req, res) => {
   const filename = req.body.filename || '';
-  const joined = path.join(BASE_DIR, filename);
-
-  if (!fs.existsSync(joined)) {
-    return res.status(404).json({ error: 'File not found', path: joined });
-  }
+  const joined = path.join(BASE_DIR, filename); // intentionally vulnerable
+  if (!fs.existsSync(joined)) return res.status(404).json({ error: 'File not found', path: joined });
   const content = fs.readFileSync(joined, 'utf8');
   res.json({ path: joined, content });
 });
