@@ -25,7 +25,7 @@ jobs:
         npm install
 
     - name: Start vulnerable app
-      working-directory: fastbnk-auth-lab/src
+      working-directory: fastbank-auth-lab/src
       run: |
         node server.js
         sleep 20
