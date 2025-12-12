@@ -2,22 +2,31 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const crypto = require("crypto");
-// bcrypt is installed but NOT used in the vulnerable baseline:
 const bcrypt = require("bcrypt");
-
 const app = express();
 const PORT = 3001;
+
+app.disable("x-powered-by");
+
+app.use((req, res, next) => {
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  
+  // FIXED: Added form-action and frame-ancestors to satisfy ZAP Rule 10055
+  res.setHeader(
+    "Content-Security-Policy", 
+    "default-src 'self'; form-action 'self'; frame-ancestors 'none'"
+  );
+  res.setHeader("Permissions-Policy", "interest-cohort=()");   
+  next();
+});
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.static("public"));
 
-/**
- * VULNERABLE FAKE USER DB
- * For simplicity, we start with a single user whose password is "password123".
- * In the vulnerable version, we hash with a fast hash (SHA-256-like).
- */
+
 const users = [
   {
     id: 1,
@@ -42,9 +51,9 @@ function fastHash(password) {
 function findUser(username) {
   return users.find((u) => u.username === username);
 }
-
 // Home API just to show who is logged in
 app.get("/api/me", (req, res) => {
+  //res.send("Fast Aut Lab is running");
   const token = req.cookies.session;
   if (!token || !sessions[token]) {
     return res.status(401).json({ authenticated: false });
@@ -102,6 +111,7 @@ app.post("/api/logout", (req, res) => {
   res.clearCookie("session");
   res.json({ success: true });
 });
+
 
 app.listen(PORT, () => {
   console.log(`FastBank Auth Lab running at http://localhost:${PORT}`);
