@@ -2,13 +2,10 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const crypto = require("crypto");
-// bcrypt is installed but NOT used in the vulnerable baseline:
 const bcrypt = require("bcrypt");
-
 const app = express();
 const PORT = 3001;
 
-// 🔒 SECURITY FIX: Hide "X-Powered-By: Express" header
 app.disable("x-powered-by");
 
 app.use((req, res, next) => {
