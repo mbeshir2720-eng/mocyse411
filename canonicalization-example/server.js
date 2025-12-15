@@ -20,7 +20,8 @@ app.use((req, res, next) => {
     "img-src 'self'; " +
     "object-src 'none'; " +
     "base-uri 'self'; " +
-    "frame-ancestors 'none'"
+    "frame-ancestors 'none'" +
+    "form-action 'self'"
   );
 
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
