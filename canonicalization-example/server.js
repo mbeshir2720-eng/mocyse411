@@ -8,13 +8,27 @@ const app = express();
 app.disable("x-powered-by");
 
 app.use((req, res, next) => {
-  res.setHeader("X-Frame-Options","DENY");
-  res.setHeader("X-Content-Type-Options","nosniff");
-  res.setHeader("Content-Security-Policy", "default-src 'self'");
-  res.setHeader("Permissions-Policy","interest-cohort=()");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Permissions-Policy", "interest-cohort=()");
+
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; " +
+    "script-src 'self'; " +
+    "style-src 'self'; " +
+    "img-src 'self'; " +
+    "object-src 'none'; " +
+    "base-uri 'self'; " +
+    "frame-ancestors 'none'"
+  );
+
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+  res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+
   next();
 });
-
 
 app.use(express.urlencoded({extended: false}));
 app.use(express.urlencoded({ extended: false }));
