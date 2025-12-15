@@ -21,7 +21,9 @@ app.use((req, res, next) => {
     "object-src 'none'; " +
     "base-uri 'self'; " +
     "frame-ancestors 'none'" +
-    "form-action 'self'"
+    "form-action 'self'" +
+    "upgrade-insecure-requests; " +
+    "report-uri /csp-report"
   );
 
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
