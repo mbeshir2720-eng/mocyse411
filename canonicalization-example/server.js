@@ -29,7 +29,6 @@ function resolveSafe(baseDir, userInput) {
   } catch (e) {}
   return path.resolve(baseDir, userInput);
 }
-
 app.post(
   '/read',
   body('filename')
