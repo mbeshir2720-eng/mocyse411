@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
@@ -6,11 +5,33 @@ const { body, validationResult } = require('express-validator');
 
 const app = express();
 app.disable("x-powered-by");
+
+// Security headers middleware
 app.use((req, res, next) => {
-  res.setHeader("X-Frame-Options","DENY"); // FIXES: Missing Anti-clickjacking (10020)
-  res.setHeader("X-Content-Type-Options","nosniff"); // FIXES: X-Content-Type-Options Missing (10021)
-  res.setHeader("Content-Security-Policy", "default-src 'self'; frame-ancestors 'none'"); 
-  res.setHeader("Permissions-Policy","interest-cohort=()"); // FIXES: Permissions Policy Not Set (10063)
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  
+  // Complete CSP with all required directives
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; " +
+    "script-src 'self'; " +
+    "style-src 'self'; " +
+    "img-src 'self'; " +
+    "font-src 'self'; " +
+    "connect-src 'self'; " +
+    "object-src 'none'; " +
+    "base-uri 'self'; " +
+    "frame-ancestors 'none'; " +
+    "form-action 'self'; " +
+    "upgrade-insecure-requests"
+  );
+  
+  res.setHeader("Permissions-Policy", "interest-cohort=()");
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+  res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+  
   next();
 });
 
@@ -21,7 +42,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const BASE_DIR = path.resolve(__dirname, 'files');
 if (!fs.existsSync(BASE_DIR)) fs.mkdirSync(BASE_DIR, { recursive: true });
 
-// helper to canonicalize and check
+// Helper to canonicalize and check
 function resolveSafe(baseDir, userInput) {
   try {
     userInput = decodeURIComponent(userInput);
@@ -49,6 +70,7 @@ app.post(
     const filename = req.body.filename;
     const normalized = resolveSafe(BASE_DIR, filename);
 
+    // FIXED: Proper string concatenation
     if (!normalized.startsWith(BASE_DIR + path.sep)) {
       return res.status(403).json({ error: 'Path traversal detected' });
     }
@@ -59,14 +81,18 @@ app.post(
   }
 );
 
-// Vulnerable route (demo)
+// Vulnerable route (demo) - FIXED TYPOS
 app.post('/read-no-validate', (req, res) => {
   const filename = req.body.filename || '';
-  const normalized = resolveSafe(BASED_DIR, filename);
+  
+  // FIXED: Changed BASED_DIR to BASE_DIR
+  const normalized = resolveSafe(BASE_DIR, filename);
 
-  if (!normalized.startsWith(BASE_DIR, path.sep)) {
-    return res.status(403).json({error: 'Path traversal detected'});
-   }                                                // intentionally vulnerable
+  // FIXED: Proper string concatenation
+  if (!normalized.startsWith(BASE_DIR + path.sep)) {
+    return res.status(403).json({ error: 'Path traversal detected' });
+  }
+  
   if (!fs.existsSync(normalized)) {
     return res.status(404).json({ error: 'File not found', path: normalized });
   }
