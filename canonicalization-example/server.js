@@ -100,6 +100,11 @@ app.post('/setup-sample', (req, res) => {
   res.json({ ok: true, base: BASE_DIR });
 });
 
+app.post('/csp-report', express.json({type: 'application/csp-report'}), (req, res) => {
+  console.warn('CSP Violation:', req.body);
+  res.status(204).end(); // No content response
+});
+
 // Only listen when run directly (not when imported by tests)
 if (require.main === module) {
   const port = process.env.PORT || 4000;
