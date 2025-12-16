@@ -20,8 +20,8 @@ app.use((req, res, next) => {
     "img-src 'self'; " +
     "object-src 'none'; " +
     "base-uri 'self'; " +
-    "frame-ancestors 'none'" +
-    "form-action 'self'" +
+    "frame-ancestors 'none'; " +
+    "form-action 'self'; " +
     "upgrade-insecure-requests; " +
     "report-uri /csp-report"
   );
@@ -34,7 +34,6 @@ app.use((req, res, next) => {
 });
 
 app.use(express.urlencoded({extended: false}));
-app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
