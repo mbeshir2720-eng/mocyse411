@@ -11,20 +11,30 @@ app.use((req, res, next) => {
   res.setHeader("X-Frame-Options", "DENY");
   res.setHeader("X-Content-Type-Options", "nosniff");
   
-  // Complete CSP with all required directives
+  // COMPLETE CSP with ALL directives ZAP expects
   res.setHeader(
     "Content-Security-Policy",
-    "default-src 'self'; " +
-    "script-src 'self'; " +
-    "style-src 'self'; " +
-    "img-src 'self'; " +
-    "font-src 'self'; " +
-    "connect-src 'self'; " +
-    "object-src 'none'; " +
+    "default-src 'none'; " +  // Start with none for maximum security
     "base-uri 'self'; " +
-    "frame-ancestors 'none'; " +
+    "block-all-mixed-content; " +
+    "child-src 'self'; " +
+    "connect-src 'self'; " +
+    "font-src 'self'; " +
     "form-action 'self'; " +
-    "upgrade-insecure-requests"
+    "frame-ancestors 'none'; " +
+    "frame-src 'none'; " +
+    "img-src 'self' data:; " +
+    "manifest-src 'self'; " +
+    "media-src 'self'; " +
+    "object-src 'none'; " +
+    "script-src 'self'; " +
+    "script-src-attr 'none'; " +
+    "script-src-elem 'self'; " +
+    "style-src 'self'; " +
+    "style-src-attr 'none'; " +
+    "style-src-elem 'self'; " +
+    "upgrade-insecure-requests; " +
+    "worker-src 'self'"
   );
   
   res.setHeader("Permissions-Policy", "interest-cohort=()");
@@ -70,7 +80,6 @@ app.post(
     const filename = req.body.filename;
     const normalized = resolveSafe(BASE_DIR, filename);
 
-    // FIXED: Proper string concatenation
     if (!normalized.startsWith(BASE_DIR + path.sep)) {
       return res.status(403).json({ error: 'Path traversal detected' });
     }
@@ -81,14 +90,11 @@ app.post(
   }
 );
 
-// Vulnerable route (demo) - FIXED TYPOS
+// Vulnerable route (demo)
 app.post('/read-no-validate', (req, res) => {
   const filename = req.body.filename || '';
-  
-  // FIXED: Changed BASED_DIR to BASE_DIR
   const normalized = resolveSafe(BASE_DIR, filename);
 
-  // FIXED: Proper string concatenation
   if (!normalized.startsWith(BASE_DIR + path.sep)) {
     return res.status(403).json({ error: 'Path traversal detected' });
   }
