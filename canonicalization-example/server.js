@@ -5,6 +5,15 @@ const fs = require('fs');
 const { body, validationResult } = require('express-validator');
 
 const app = express();
+app.disable("x-powered-by");
+app.use((req, res, next) => {
+  res.setHeader("X-Frame-Options","DENY"); // FIXES: Missing Anti-clickjacking (10020)
+  res.setHeader("X-Content-Type-Options","nosniff"); // FIXES: X-Content-Type-Options Missing (10021)
+  res.setHeader("Content-Security-Policy", "default-src 'self'; frame-ancestors 'none'"); 
+  res.setHeader("Permissions-Policy","interest-cohort=()"); // FIXES: Permissions Policy Not Set (10063)
+  next();
+});
+
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
